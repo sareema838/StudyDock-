@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyDock</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+  }
+  h1 { text-align: center; }
+  input, button {
+    padding: 10px;
+    font-size: 16px;
+  }
+  #taskInput { width: 70%; }
+  ul { list-style-type: none; padding: 0; }
+  li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .done { text-decoration: line-through; color: gray; }
+</style>
+</head>
+<body>
+
+<h1>StudyDock</h1>
+<p id="progress">Daily Progress: 0 / 0</p>
+
+<div>
+  <input type="text" id="taskInput" placeholder="Enter study task">
+  <button onclick="addTask()">Add</button>
+</div>
+
+<ul id="taskList"></ul>
+
+<script>
+let tasks = [];
+
+function updateProgress() {
+  const completed = tasks.filter(t => t.done).length;
+  document.getElementById('progress').innerText = `Daily Progress: ${completed} / ${tasks.length}`;
+}
+
+function renderTasks() {
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+  tasks.forEach((task, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span class="${task.done ? 'done' : ''}">${task.title}</span>
+      <span>
+        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask(${index})">
+        <button onclick="deleteTask(${index})">Delete</button>
+      </span>
+    `;
+    list.appendChild(li);
+  });
+  updateProgress();
+}
+
+function addTask() {
+  const input = document.getElementById('taskInput');
+  const title = input.value.trim();
+  if(title) {
+    tasks.push({ title: title, done: false });
+    input.value = '';
+    renderTasks();
+  }
+}
+
+function toggleTask(index) {
+  tasks[index].done = !tasks[index].done;
+  renderTasks();
+}
+
+function deleteTask(index) {
+  tasks.splice(index, 1);
+  renderTasks();
+}
+
+// Optional: Save tasks in localStorage
+window.onload = () => {
+  const saved = localStorage.getItem('tasks');
+  if(saved) tasks = JSON.parse(saved);
+  renderTasks();
+}
+
+window.onbeforeunload = () => {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+</script>
+
+</body>
+</html>
